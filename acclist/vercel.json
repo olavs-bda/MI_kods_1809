@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/escalation/schedule",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/escalation/deliver",
+      "schedule": "*/2 * * * *"
+    }
+  ]
+}

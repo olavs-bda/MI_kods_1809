@@ -29,8 +29,25 @@ export function AuthProvider({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.email);
+
       if (session?.user) {
         setUser(session.user);
+
+        // Handle automatic redirect after email confirmation
+        if (event === "SIGNED_IN" && typeof window !== "undefined") {
+          const currentPath = window.location.pathname;
+          if (currentPath === "/login" || currentPath === "/") {
+            // Check if this is a new user by looking at user metadata
+            const isNewUser =
+              session.user.user_metadata?.new_user ||
+              new Date(session.user.created_at) > new Date(Date.now() - 60000); // Created in last minute
+
+            setTimeout(() => {
+              window.location.href = isNewUser ? "/onboarding" : "/dashboard";
+            }, 1000);
+          }
+        }
       } else {
         setUser(null);
       }

@@ -1,8 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
+import Button, { LoadingSpinner } from "@/components/ui/button";
+import { Input, FormField } from "@/components/ui/form";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
 export default function AuthForm({ className }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -13,6 +23,7 @@ export default function AuthForm({ className }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
+  const router = useRouter();
   const { signIn, signUp, resetPassword } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -27,12 +38,33 @@ export default function AuthForm({ className }) {
         if (error) throw error;
         setMessage("Check your email for the password reset link");
       } else if (isSignUp) {
-        const { error } = await signUp(email, password);
+        const { data, error } = await signUp(email, password);
         if (error) throw error;
-        setMessage("Check your email to confirm your account");
+
+        // Check if user was immediately confirmed (email confirmation disabled)
+        if (data?.user && !data.user.email_confirmed_at) {
+          setMessage("Check your email to confirm your account");
+        } else if (data?.user && data.user.email_confirmed_at) {
+          // User is immediately confirmed and logged in
+          setMessage(
+            "Account created successfully! Setting up your profile..."
+          );
+          setTimeout(() => router.push("/onboarding"), 1500);
+        } else {
+          setMessage("Check your email to confirm your account");
+        }
       } else {
-        const { error } = await signIn(email, password);
+        const { data, error } = await signIn(email, password);
         if (error) throw error;
+
+        // Check if user is confirmed
+        if (data?.user && !data.user.email_confirmed_at) {
+          setError("Please confirm your email address before signing in");
+          return;
+        }
+
+        setMessage("Welcome back! Redirecting...");
+        setTimeout(() => router.push("/dashboard"), 1000);
       }
     } catch (err) {
       setError(err.message || "An error occurred");
@@ -55,125 +87,122 @@ export default function AuthForm({ className }) {
   };
 
   return (
-    <div className={cn("w-full max-w-md mx-auto p-6", className)}>
-      <div className="space-y-2 text-center mb-6">
-        <h1 className="text-3xl font-bold">
-          {isResetPassword
-            ? "Reset Password"
-            : isSignUp
-            ? "Create Account"
-            : "Sign In"}
-        </h1>
-        <p className="text-muted-foreground">
-          {isResetPassword
-            ? "Enter your email to receive a reset link"
-            : isSignUp
-            ? "Create an account to get started"
-            : "Sign in to your account"}
-        </p>
-      </div>
+    <Card className={cn("w-full max-w-md mx-auto", className)}>
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl">
+          {isResetPassword ?
+            "Reset Password"
+          : isSignUp ?
+            "Create Account"
+          : "Sign In"}
+        </CardTitle>
+        <CardDescription>
+          {isResetPassword ?
+            "Enter your email to receive a reset link"
+          : isSignUp ?
+            "Create an account to get started"
+          : "Sign in to your account"}
+        </CardDescription>
+      </CardHeader>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-      >
-        {error && (
-          <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
-            {error}
-          </div>
-        )}
-
-        {message && (
-          <div className="p-3 bg-green-100 text-green-800 text-sm rounded-md">
-            {message}
-          </div>
-        )}
-
-        <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full p-2 border border-input rounded-md"
-            placeholder="name@example.com"
-          />
-        </div>
-
-        {!isResetPassword && (
-          <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-2 border border-input rounded-md"
-              placeholder="••••••••"
-            />
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium"
+      <CardContent className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
         >
-          {loading
-            ? "Loading..."
-            : isResetPassword
-            ? "Send Reset Link"
-            : isSignUp
-            ? "Sign Up"
+          {error && (
+            <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
+              {error}
+            </div>
+          )}
+
+          {message && (
+            <div className="p-3 bg-green-100 text-green-800 text-sm rounded-md">
+              {message}
+            </div>
+          )}
+
+          <FormField label="Email">
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="name@example.com"
+            />
+          </FormField>
+
+          {!isResetPassword && (
+            <FormField label="Password">
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+            </FormField>
+          )}
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full"
+          >
+            {loading && (
+              <LoadingSpinner
+                size="sm"
+                className="mr-2"
+              />
+            )}
+            {loading ?
+              "Loading..."
+            : isResetPassword ?
+              "Send Reset Link"
+            : isSignUp ?
+              "Sign Up"
             : "Sign In"}
-        </button>
-      </form>
+          </Button>
+        </form>
 
-      <div className="mt-6 text-center text-sm">
-        {!isResetPassword && (
-          <button
-            onClick={toggleMode}
-            className="text-primary hover:underline"
-          >
-            {isSignUp
-              ? "Already have an account? Sign in"
-              : "Need an account? Sign up"}
-          </button>
-        )}
-
-        {!isResetPassword && !isSignUp && (
-          <div className="mt-2">
-            <button
-              onClick={toggleResetPassword}
-              className="text-primary hover:underline"
+        <div className="text-center text-sm space-y-2">
+          {!isResetPassword && (
+            <Button
+              variant="ghost"
+              onClick={toggleMode}
+              className="text-primary hover:underline p-0 h-auto"
             >
-              Forgot your password?
-            </button>
-          </div>
-        )}
+              {isSignUp ?
+                "Already have an account? Sign in"
+              : "Need an account? Sign up"}
+            </Button>
+          )}
 
-        {isResetPassword && (
-          <button
-            onClick={() => setIsResetPassword(false)}
-            className="text-primary hover:underline"
-          >
-            Back to sign in
-          </button>
-        )}
-      </div>
-    </div>
+          {!isResetPassword && !isSignUp && (
+            <div>
+              <Button
+                variant="ghost"
+                onClick={toggleResetPassword}
+                className="text-primary hover:underline p-0 h-auto"
+              >
+                Forgot your password?
+              </Button>
+            </div>
+          )}
+
+          {isResetPassword && (
+            <Button
+              variant="ghost"
+              onClick={() => setIsResetPassword(false)}
+              className="text-primary hover:underline p-0 h-auto"
+            >
+              Back to sign in
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

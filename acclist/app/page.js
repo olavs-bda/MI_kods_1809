@@ -1,49 +1,118 @@
-import Image from "next/image";
 import Link from "next/link";
+import Button from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <div className="text-center sm:text-left">
-          <h1 className="text-4xl font-bold tracking-tight">AccountaList</h1>
-          <p className="mt-2 text-xl text-muted-foreground">
-            Social accountability for maximum productivity
+    <div className="flex flex-col">
+      {/* Hero Section */}
+      <section className="container flex-1 flex items-center justify-center py-24 md:py-32">
+        <div className="mx-auto max-w-[980px] flex flex-col items-center space-y-6 text-center">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
+              Social accountability for{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                maximum productivity
+              </span>
+            </h1>
+            <p className="mx-auto max-w-[700px] text-lg text-muted-foreground sm:text-xl">
+              AccountaList helps you get things done by adding social stakes to
+              your tasks. Miss a deadline? We'll notify your chosen contacts
+              with escalating notifications.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Button
+              asChild
+              size="lg"
+            >
+              <Link href="/login">Get Started</Link>
+            </Button>
+            <Button
+              variant="outline"
+              asChild
+              size="lg"
+            >
+              <Link href="/login">Sign In</Link>
+            </Button>
+          </div>
+
+          {/* Features */}
+          <div className="mx-auto grid max-w-[800px] gap-6 py-12 md:grid-cols-3">
+            <div className="flex flex-col items-center space-y-2 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold">Social Stakes</h3>
+              <p className="text-sm text-muted-foreground">
+                Add real social consequences to your tasks
+              </p>
+            </div>
+            <div className="flex flex-col items-center space-y-2 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold">Escalation Policies</h3>
+              <p className="text-sm text-muted-foreground">
+                Set up escalating notifications for missed deadlines
+              </p>
+            </div>
+            <div className="flex flex-col items-center space-y-2 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold">Full Transparency</h3>
+              <p className="text-sm text-muted-foreground">
+                Track accountability with the receipts dashboard
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-6 md:py-0">
+        <div className="container flex flex-col items-center justify-center gap-4 md:h-24 md:flex-row">
+          <p className="text-center text-sm leading-loose text-muted-foreground">
+            © {new Date().getFullYear()} AccountaList. All rights reserved.
           </p>
         </div>
-
-        <div className="max-w-md text-center sm:text-left">
-          <p className="mb-4">
-            AccountaList helps you get things done by adding social stakes to
-            your tasks. Miss a deadline? We'll notify your chosen contacts with
-            escalating shame levels.
-          </p>
-          <ul className="list-disc list-inside mb-6 space-y-2">
-            <li>Create tasks with real social consequences</li>
-            <li>Set up escalation policies for missed deadlines</li>
-            <li>Track your accountability with the receipts dashboard</li>
-          </ul>
-        </div>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="/login"
-          >
-            Get Started
-          </Link>
-          <Link
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
-            href="/login"
-          >
-            Sign In
-          </Link>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} AccountaList. All rights reserved.
-        </p>
       </footer>
     </div>
   );
